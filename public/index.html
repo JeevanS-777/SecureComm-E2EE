@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureChat | E2EE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-layout">
+        
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <header class="sidebar-header">
+                <div class="user-avatar">ME</div>
+                <div class="header-icons">
+                    <i class="fas fa-circle-notch"></i>
+                    <i class="fas fa-comment-alt"></i>
+                    <i class="fas fa-ellipsis-v"></i>
+                </div>
+            </header>
+            <div class="search-bar">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search or start new chat">
+                </div>
+            </div>
+            <div class="contact-list">
+                <div class="contact-item active">
+                    <div class="avatar">?</div>
+                    <div class="contact-info">
+                        <div class="contact-top">
+                            <span class="contact-name">Anonymous Peer</span>
+                            <span class="contact-time">Now</span>
+                        </div>
+                        <div class="contact-preview">
+                            <span id="conn-status-text">Generating Keys...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CHAT -->
+        <main class="chat-interface">
+            <header class="chat-header">
+                <div class="avatar">?</div>
+                <div class="chat-info">
+                    <span class="chat-name">Anonymous Peer</span>
+                    <span class="chat-status" id="typing-indicator">
+                        <i class="fas fa-lock" style="font-size:10px;"></i> End-to-End Encrypted
+                    </span>
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn" onclick="toggleDebug()" title="Show Keys">
+                        <i class="fas fa-key" style="color:var(--accent)"></i>
+                    </button>
+                    <i class="fas fa-search icon-btn"></i>
+                    <i class="fas fa-ellipsis-v icon-btn"></i>
+                </div>
+            </header>
+
+            <!-- DEBUG PANEL -->
+            <div id="debug-panel" class="security-drawer hidden">
+                <div class="drawer-header">
+                    <h3>CRYPTOGRAPHIC KEYS</h3>
+                    <button onclick="toggleDebug()"><i class="fas fa-times"></i></button>
+                </div>
+
+                <!-- 1. PUBLIC KEY -->
+                <div class="drawer-section">
+                    <h4><i class="fas fa-globe"></i> My Public Key (Shared)</h4>
+                    <div class="code-snippet" id="ui-public-key">Generating...</div>
+                </div>
+
+                <!-- 2. PRIVATE KEY -->
+                <div class="drawer-section">
+                    <h4><i class="fas fa-user-secret"></i> My Private Key (Secret)</h4>
+                    <div class="code-snippet" id="ui-private-key" style="color:#ff5f5f">Hidden (In Memory)</div>
+                </div>
+
+                <!-- 3. SESSION KEY -->
+                <div class="drawer-section">
+                    <h4><i class="fas fa-sync-alt"></i> Current Session Key</h4>
+                    <p class="explanation">This key regenerates with every single message (Double Ratchet).</p>
+                    <div class="ratchet-visual">
+                        <div class="key-box highlight">
+                            <label>AES-256 SESSION KEY</label>
+                            <span id="ui-session-key">Waiting for Handshake...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. WIRETAP -->
+                <div class="drawer-section">
+                    <h4><i class="fas fa-network-wired"></i> Network Traffic (Ciphertext)</h4>
+                    <div id="network-log-content" class="log-container"></div>
+                </div>
+            </div>
+
+            <!-- MESSAGES -->
+            <div class="messages-area" id="chat-box">
+                <div class="encryption-notice">
+                    <i class="fas fa-lock"></i> Messages are secured with <strong>AES-GCM-256</strong> & <strong>ECDH</strong>.
+                </div>
+            </div>
+
+            <!-- INPUT -->
+            <footer class="chat-input-area">
+                <i class="far fa-smile icon-btn"></i>
+                <i class="fas fa-paperclip icon-btn"></i>
+                <div class="input-wrapper">
+                    <input type="text" id="msg-input" placeholder="Type a message" autocomplete="off" disabled>
+                </div>
+                <button id="send-btn" class="send-btn" disabled>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </footer>
+        </main>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/crypto-primitives.js"></script>
+    <script src="js/ratchet-engine.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        function toggleDebug() {
+            document.getElementById('debug-panel').classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
